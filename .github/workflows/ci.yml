@@ -81,6 +81,10 @@ jobs:
           ACCOUNT=${{ secrets.AWS_ACCOUNT_ID }}
           REGION=${{ secrets.AWS_REGION }}
 
+          # First replace placeholder with actual account ID
+          find gitops/k8s -name "*.yml" -exec sed -i "s|<AWS_ACCOUNT_ID>|${ACCOUNT}|g" {} \;
+
+          # Then update image tags with new commit SHA
           for SERVICE in auth gateway orders order-service product-service user-service; do
             MANIFEST="gitops/k8s/backend/${SERVICE}.yml"
             sed -i "s|${ACCOUNT}.dkr.ecr.${REGION}.amazonaws.com/${SERVICE}:.*|${ACCOUNT}.dkr.ecr.${REGION}.amazonaws.com/${SERVICE}:${NEW_TAG}|g" $MANIFEST
